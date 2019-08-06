@@ -1,13 +1,13 @@
 <?php
-$city=1780; // Новосибирск(код Новосибирска с сайта, указанного ниже,
-$cache_file=$_SERVER['DOCUMENT_ROOT']."/tmp/pogoda".$city.".cch"; //указываем путь к картинкам
-if (file_exists( $cache_file ) && // Проверка существования кэш файла
+$city=1780; // РќРѕРІРѕСЃРёР±РёСЂСЃРє(РєРѕРґ РќРѕРІРѕСЃРёР±РёСЂСЃРєР° СЃ СЃР°Р№С‚Р°, СѓРєР°Р·Р°РЅРЅРѕРіРѕ РЅРёР¶Рµ,
+$cache_file=$_SERVER['DOCUMENT_ROOT']."/tmp/pogoda".$city.".cch"; //СѓРєР°Р·С‹РІР°РµРј РїСѓС‚СЊ Рє РєР°СЂС‚РёРЅРєР°Рј
+if (file_exists( $cache_file ) && // РџСЂРѕРІРµСЂРєР° СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёСЏ РєСЌС€ С„Р°Р№Р»Р°
 	date('Y-m-d',filemtime($cache_file))==
 	date("Y-m-d", mktime(0, 0, 0, date("m") , date("d"), date("Y")))){
    readfile($cache_file);
-}else{ // создание кэш файла
+}else{ // СЃРѕР·РґР°РЅРёРµ РєСЌС€ С„Р°Р№Р»Р°
 
-$content=file_get_contents("http://meteo.infospace.ru/win/wcond/html/");//сайт,с которого взята информация о погоде
+$content=file_get_contents("http://meteo.infospace.ru/win/wcond/html/");//СЃР°Р№С‚,СЃ РєРѕС‚РѕСЂРѕРіРѕ РІР·СЏС‚Р° РёРЅС„РѕСЂРјР°С†РёСЏ Рѕ РїРѕРіРѕРґРµ
 $start = strpos( $content, "r_form.ssi?id=" ) + 11;
 $end   = strpos( $content, '"', $start );
 
@@ -17,33 +17,33 @@ if ( substr( $id, strlen( $id ) - 1, 1 ) == '"' )
 	$id = substr( $id, 0, strlen( $id ) - 1 );
 }
 
-$content=file_get_contents("http://meteo.infospace.ru/win/cities/html/city_r.sht?num=1780&id=140071365"); // получаем сведения с сайта
+$content=file_get_contents("http://meteo.infospace.ru/win/cities/html/city_r.sht?num=1780&id=140071365"); // РїРѕР»СѓС‡Р°РµРј СЃРІРµРґРµРЅРёСЏ СЃ СЃР°Р№С‚Р°
 
-// название населенного пункта
-if (preg_match('|<font color=#800000>(.*?)</font>|sei', $content, $arr)) $title = trim($arr[1]); // название города
+// РЅР°Р·РІР°РЅРёРµ РЅР°СЃРµР»РµРЅРЅРѕРіРѕ РїСѓРЅРєС‚Р°
+if (preg_match('|<font color=#800000>(.*?)</font>|sei', $content, $arr)) $title = trim($arr[1]); // РЅР°Р·РІР°РЅРёРµ РіРѕСЂРѕРґР°
    else $title='';
 
 $tstart = strpos( $content, "<table BORDER=0 CELLPADDING=0 CELLSPACING=0 width=100%>" ) + 55;
 $tend   = strpos( $content, "</TABLE>", $tstart ) + 8;
 $tbl    = substr( $content, $tstart, $tend - $tstart );
 
-$search_patterns  = array( // массив сведений в таблицу о погоде 
+$search_patterns  = array( // РјР°СЃСЃРёРІ СЃРІРµРґРµРЅРёР№ РІ С‚Р°Р±Р»РёС†Сѓ Рѕ РїРѕРіРѕРґРµ 
                 "../../images/",
 	"<font size=-1",
-	"Дневная температура",
-	"Ночная температура",
-	"(при H =\x0a   \t\t\t\t90\x0a   \t\t\t\tм)"
+	"Р”РЅРµРІРЅР°СЏ С‚РµРјРїРµСЂР°С‚СѓСЂР°",
+	"РќРѕС‡РЅР°СЏ С‚РµРјРїРµСЂР°С‚СѓСЂР°",
+	"(РїСЂРё H =\x0a   \t\t\t\t90\x0a   \t\t\t\tРј)"
 );
 
-$replace_patterns = array( // шапка
+$replace_patterns = array( // С€Р°РїРєР°
 	"pogoda/",
 	"<font size=1,5 face=\"Verdana\"",
-	"Днем",
-	"Ночью",
+	"Р”РЅРµРј",
+	"РќРѕС‡СЊСЋ",
 	""
 );
 
-$tbl =  "<h2>Прогноз погоды на сегодня в городе ".$title."</h2>\n". // отображение всех данных
+$tbl =  "<h2>РџСЂРѕРіРЅРѕР· РїРѕРіРѕРґС‹ РЅР° СЃРµРіРѕРґРЅСЏ РІ РіРѕСЂРѕРґРµ ".$title."</h2>\n". // РѕС‚РѕР±СЂР°Р¶РµРЅРёРµ РІСЃРµС… РґР°РЅРЅС‹С…
 	"<table border=2 cellpadding=1 cellspacing=1 width=500 height=190>\n".
 	str_replace( $search_patterns, $replace_patterns, $tbl );
 @file_put_contents($cache_file,$tbl);
